@@ -5,31 +5,29 @@
 [![Build Status](https://travis-ci.com/firechip/pads-layout-parser.svg?branch=main)](https://travis-ci.com/firechip/pads-layout-parser)
 [![Coverage Status](https://coveralls.io/repos/github/firechip/pads-layout-parser/badge.svg?branch=main)](https://coveralls.io/github/firechip/pads-layout-parser?branch=main)
 
-`pads-layout-parser` is a TypeScript library for parsing netlists in the PADS Layout ASCII format (`.asc` files). It provides a structured object representation of the netlist data, making it easy to process and convert to other formats like the Yosys JSON format used for circuit analysis and visualization.
+The **PADS Layout Parser** is a modern TypeScript library for parsing netlists in the PADS Layout ASCII format (`.asc` files). It transforms netlist data into a structured object representation, ideal for circuit analysis, design automation, and data conversion tasks.
 
-## Features
+## 🚀 Features
 
-*   Parses PADS Layout ASCII netlist files.
-*   Handles `*PART*` and `*NET*` sections.
-*   Extracts part reference designators, footprint names, and optional values.
-*   Extracts net names and pin connections.
-*   Provides error handling for invalid or unexpected input.
-*   Provides a simple and easy-to-use API.
-*   Written in TypeScript with type safety.
+- ✅ Parses PADS Layout ASCII netlist files
+- ✅ Handles `*PART*` and `*NET*` sections
+- ✅ Extracts part reference designators, footprints, and optional values
+- ✅ Extracts net names and pin connections
+- ✅ Provides robust error handling
+- ✅ Fully typed TypeScript API for enhanced developer experience
 
-## Installation
+## 📦 Installation
 
 ```bash
 npm install pads-layout-parser
-````
+```
 
-## Usage
+## 📖 Usage Examples
 
 ```typescript
 import { PADSParser, PADSNetlist } from 'pads-layout-parser';
 import * as fs from 'fs';
 
-// Example 1: Parse a PADS netlist from a string
 const padsData = `
 *PADS-PCB*
 *PART*
@@ -44,45 +42,23 @@ U1.2 R1.2
 `;
 
 const parser = new PADSParser();
-try {
-  const netlist: PADSNetlist = parser.parse(padsData);
-  console.log(JSON.stringify(netlist, null, 2));
-} catch (error) {
-  console.error('Error parsing PADS data:', error.message);
-}
+const netlist: PADSNetlist = parser.parse(padsData);
+console.log(JSON.stringify(netlist, null, 2));
 
-// Example 2: Parse a PADS netlist from a file
 const filename = 'my_netlist.asc';
-try {
-  const fileContent = fs.readFileSync(filename, 'utf8');
-  const netlist: PADSNetlist = parser.parse(fileContent);
-  console.log(JSON.stringify(netlist, null, 2));
-} catch (error) {
-  console.error(`Error reading or parsing file ${filename}:`, error.message);
-}
+const fileContent = fs.readFileSync(filename, 'utf8');
+const netlistFromFile = parser.parse(fileContent);
+console.log(JSON.stringify(netlistFromFile, null, 2));
 ```
 
-## API Reference
+## 📚 API Reference
 
 ### `PADSParser`
 
-The main class for parsing PADS netlists.
+- **`constructor()`**: Creates a new parser instance.
+- **`parse(data: string): PADSNetlist`**: Parses a PADS netlist string.
 
-#### `constructor()`
-
-Creates a new `PADSParser` instance.
-
-#### `parse(data: string): PADSNetlist`
-
-Parses a PADS netlist from a string.
-
-  * `data`: The PADS netlist data as a string.
-  * `Returns`: The parsed `PADSNetlist` object.
-  * `Throws`: An `Error` if parsing fails.
-
-### `PADSNetlist`
-
-An interface representing the parsed PADS netlist.
+### `PADSNetlist` Interface
 
 ```typescript
 interface PADSNetlist {
@@ -91,21 +67,17 @@ interface PADSNetlist {
 }
 ```
 
-### `PADSPart`
-
-An interface representing a part in the netlist.
+### `PADSPart` Interface
 
 ```typescript
 interface PADSPart {
   refdes: string;
   footprint: string;
-  value?: string; // Optional value
+  value?: string;
 }
 ```
 
-### `PADSNet`
-
-An interface representing a net in the netlist.
+### `PADSNet` Interface
 
 ```typescript
 interface PADSNet {
@@ -114,9 +86,7 @@ interface PADSNet {
 }
 ```
 
-### `PADSPin`
-
-An interface representing a pin connection in a net.
+### `PADSPin` Interface
 
 ```typescript
 interface PADSPin {
@@ -125,44 +95,53 @@ interface PADSPin {
 }
 ```
 
-## Error Handling
+## ⚙️ Error Handling
 
-The `PADSParser` throws an `Error` object if it encounters invalid syntax or unexpected data in the PADS file. The error message will provide information about the location and nature of the error, including the line number if available.
+The parser throws detailed error messages with line numbers and issue descriptions when it encounters invalid syntax or unexpected data.
 
-## Contributing
+## 🧪 Testing & Coverage
 
-Contributions are welcome\! Please feel free to submit issues or pull requests on [GitHub](https://www.google.com/url?sa=E&source=gmail&q=https://github.com/firechip/pads-layout-parser).
+Run the test suite using:
+```bash
+npm test
+```
 
-## License
+Code coverage reports are automatically generated via Coveralls.
 
-This project is licensed under the MIT License - see the [LICENSE](https://www.google.com/url?sa=E&source=gmail&q=LICENSE) file for details.
+## 👥 Contributing
 
-## Development
+Contributions are welcome! Please review our [Contributing Guidelines](https://github.com/firechip/pads-layout-parser/blob/main/CONTRIBUTING.md) before submitting a pull request.
 
-To get started with development:
+## 📄 License
 
-1.  Clone the repository:
+This project is licensed under the [MIT License](https://github.com/firechip/pads-layout-parser/blob/main/LICENSE).
+
+## 📈 Development
+
+1. Clone the repository:
     ```bash
-    git clone [invalid URL removed]
+    git clone git@github.com:firechip/pads-layout-parser.git
     ```
-2.  Install dependencies:
+2. Install dependencies:
     ```bash
     cd pads-layout-parser
     npm install
     ```
-3.  Build the project:
+3. Build the project:
     ```bash
     npm run build
     ```
-4.  Run tests:
+4. Run tests:
     ```bash
     npm test
     ```
 
-## TODO
+## 📌 TODO
 
-  * Add more comprehensive unit tests.
-  * Improve error handling and reporting.
-  * Add support for more advanced PADS features (if needed).
-  * Integrate with Yosys JSON conversion.
+- [ ] Add more comprehensive unit tests.
+- [ ] Improve error handling and reporting.
+- [ ] Add support for advanced PADS features.
+- [ ] Enhance compatibility with Yosys JSON conversion.
+
+For questions or feedback, feel free to open an issue or reach out to the project maintainers.
 
