@@ -49,20 +49,19 @@ export class PADSParser {
     this.errors = []; // Reset errors for each parse
     const lines = data.split("\n");
     let state = ParserState.Start;
-    // Initialize currentNet with an empty pins array
     let currentNet: PADSNet = { name: "", pins: [] };
     let lineNum = 0;
     let inPartSection = false;
     let inNetSection = false;
-
+  
     for (const line of lines) {
       lineNum++;
       const trimmedLine = line.trim();
-
+  
       if (!trimmedLine || trimmedLine.startsWith("//")) {
         continue; // Skip empty lines and comments
       }
-
+  
       try {
         switch (state) {
           case ParserState.Start:
@@ -115,16 +114,24 @@ export class PADSParser {
               if (currentNet && currentNet.pins.length > 0) {
                 this.netlist.nets.push(currentNet);
               }
-              const parts = trimmedLine.split(" ");
-              if (parts.length >= 2) {
-                currentNet = { name: parts[1], pins: [] };
-                state = ParserState.InSignal;
-              } else {
-                this.addError(ErrorCodes.INVALID_NET_FORMAT, lineNum);
-                if (!this.partialParsing) {
-                  throw new ParserError(ErrorCodes.INVALID_NET_FORMAT, lineNum);
-                }
+              // Fix: Parse the net name correctly by splitting on whitespace
+              const parts = trimmedLine
+                .substring("*SIGNAL*".length)
+                .trim()
+                .split(/\s+/);
+              const netName = parts[0]; // Take first part as net name
+
+              if (!netName) {
+                throw new ParserError(ErrorCodes.EMPTY_NET_NAME, lineNum);
               }
+
+              // Check for duplicate net names
+              if (this.netlist.nets.some((net) => net.name === netName)) {
+                throw new ParserError(ErrorCodes.DUPLICATE_NET_NAME, lineNum);
+              }
+
+              currentNet = { name: netName, pins: [] };
+              state = ParserState.InSignal;
             } else if (trimmedLine.startsWith("*END*")) {
               if (currentNet && currentNet.pins.length > 0) {
                 this.netlist.nets.push(currentNet);
@@ -133,16 +140,6 @@ export class PADSParser {
               inNetSection = false;
             } else if (state === ParserState.InSignal) {
               this.parseNetLine(trimmedLine, currentNet, lineNum);
-            }
-            break;
-
-          case ParserState.Done:
-            break; // Ignore any lines after *END*
-
-          default:
-            this.addError(ErrorCodes.UNEXPECTED_TOKEN, lineNum);
-            if (!this.partialParsing) {
-              throw new ParserError(ErrorCodes.UNEXPECTED_TOKEN, lineNum);
             }
             break;
         }
@@ -188,49 +185,59 @@ export class PADSParser {
    * @throws ParserError if the line has an invalid format.
    */
   private parsePartLine(line: string, lineNum: number): void {
-    const parts = line.split(" ");
-    if (parts.length >= 2) {
-      let value: string | undefined;
-      let footprint = parts[1];
-      const atIndex = footprint.indexOf("@");
-      if (atIndex !== -1) {
-        value = footprint.substring(0, atIndex);
-        footprint = footprint.substring(atIndex + 1);
-      }
+    // Split on first whitespace to separate refdes from rest
+    const [refdes, ...rest] = line.trim().split(/\s+/);
+    const remaining = rest.join(" ");
 
-      if (parts[0].length > MAX_REF_DES_SIZE) {
-        console.warn(
-          `Part refdes "${parts[0]}" at line ${lineNum} too long, it will be truncated`
-        );
-      }
-
-      // Check if the refdes is valid
-      if (!/^[A-Za-z0-9]+$/.test(parts[0])) {
-        throw new ParserError(ErrorCodes.INVALID_PART_REFDES, lineNum);
-      }
-
-      // Check if the footprint name is valid
-      if (!/^[A-Za-z0-9_-]+$/.test(footprint)) {
-        throw new ParserError(ErrorCodes.INVALID_PART_FORMAT, lineNum);
-      }
-
-      // Check for duplicate parts
-      if (
-        this.netlist.parts.some(
-          (existingPart) => existingPart.refdes === parts[0]
-        )
-      ) {
-        throw new ParserError(ErrorCodes.DUPLICATE_PART, lineNum);
-      }
-
-      this.netlist.parts.push({
-        refdes: parts[0].substring(0, MAX_REF_DES_SIZE),
-        footprint,
-        value,
-      });
-    } else {
+    if (!refdes || !remaining) {
       throw new ParserError(ErrorCodes.INVALID_PART_FORMAT, lineNum);
     }
+
+    // Check refdes length
+    if (refdes.length > MAX_REF_DES_SIZE) {
+      console.warn(
+        `Part refdes "${refdes}" at line ${lineNum} too long, it will be truncated`
+      );
+    }
+
+    // Validate refdes format - allow lowercase letters
+    if (!/^[A-Za-z][A-Za-z0-9]*$/i.test(refdes)) {
+      throw new ParserError(ErrorCodes.INVALID_PART_REFDES, lineNum);
+    }
+
+    // Check for duplicate parts - case insensitive comparison
+    if (
+      this.netlist.parts.some(
+        (part) => part.refdes.toLowerCase() === refdes.toLowerCase()
+      )
+    ) {
+      throw new ParserError(ErrorCodes.DUPLICATE_PART, lineNum);
+    }
+
+    let footprint: string;
+    let value: string | undefined;
+
+    // Parse value@footprint format
+    const parts = remaining.split("@").map((p) => p.trim());
+    if (parts.length > 1) {
+      // Last part is footprint, everything else is value
+      footprint = parts.pop()!;
+      value = parts.join("@");
+    } else {
+      footprint = remaining.trim();
+    }
+
+    // Validate footprint format - allow more characters
+    if (!/^[A-Za-z0-9_\-]+$/i.test(footprint)) {
+      throw new ParserError(ErrorCodes.INVALID_PART_FORMAT, lineNum);
+    }
+
+    // Keep case of refdes as is
+    this.netlist.parts.push({
+      refdes,
+      footprint,
+      value: value || undefined,
+    });
   }
 
   /**
