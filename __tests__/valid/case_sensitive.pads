@@ -1,0 +1,19 @@
+*PaDs-pCb*
+*pArT*
+U1 Dip14
+r1 0805
+c1 0805
+
+*nEt*
+*sIgNaL* vCc
+u1.14
+*sIgNaL* gNd
+U1.7
+*sIgNaL* nEt1
+u1.1 r1.1
+*sIgNaL* NeT2
+u1.2 r1.2 c1.1
+*sIgNaL* nEt3
+c1.2
+
+*eNd*

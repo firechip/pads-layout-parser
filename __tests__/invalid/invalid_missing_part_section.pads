@@ -1,0 +1,5 @@
+*PADS-PCB*
+*NET*
+*SIGNAL* NET1
+U1.1 R1.1
+*END*

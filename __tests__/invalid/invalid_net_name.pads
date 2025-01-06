@@ -1,0 +1,7 @@
+*PADS-PCB*
+*PART*
+U1 DIP14
+*NET*
+*SIGNAL* NET 1
+U1.1
+*END*

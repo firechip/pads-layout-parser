@@ -1,0 +1,19 @@
+// This is a comment at the beginning of the file
+*PADS-PCB*
+// This is another comment
+*PART*
+// A part with a comment
+U1 DIP14 // This is a comment about U1
+R1 0805 // Resistor R1
+
+*NET*
+// Nets section
+*SIGNAL* VCC // Power net
+U1.14
+*SIGNAL* GND // Ground net
+U1.7
+*SIGNAL* NET1 // Signal net 1
+// A comment inside the net definition
+U1.1 R1.1
+
+*END* // End of file
