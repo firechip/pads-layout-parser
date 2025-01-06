@@ -1,6 +1,7 @@
 # PADS Layout Parser
 
 [![npm version](https://badge.fury.io/js/pads-layout-parser.svg)](https://badge.fury.io/js/pads-layout-parser)
+[![pages-build-deployment](https://github.com/firechip/pads-layout-parser/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/firechip/pads-layout-parser/actions/workflows/pages/pages-build-deployment)
 [![Downloads](https://img.shields.io/npm/dm/pads-layout-parser.svg)](https://www.npmjs.com/package/pads-layout-parser)
 [![Build Status](https://travis-ci.com/firechip/pads-layout-parser.svg?branch=main)](https://travis-ci.com/firechip/pads-layout-parser)
 [![Coverage Status](https://coveralls.io/repos/github/firechip/pads-layout-parser/badge.svg?branch=main)](https://coveralls.io/github/firechip/pads-layout-parser?branch=main)
